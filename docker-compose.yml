@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  anticap-webapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
+        - linux/arm64
+    ports:
+      - "6688:6688"
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-86400}
+      - VALID_USERNAME=${VALID_USERNAME:-admin}
+      - VALID_PASSWORD=${VALID_PASSWORD:-admin}
+      - PORT=${PORT:-6688}
+    env_file:
+      - .env
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6688/docs"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s 

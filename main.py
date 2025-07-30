@@ -2,6 +2,7 @@ import os
 import jwt
 import AntiCAP
 import uvicorn
+from dotenv import load_dotenv
 
 from datetime import datetime, timedelta
 from fastapi import FastAPI, Depends, HTTPException, status
@@ -10,13 +11,15 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+# 加载环境变量
+load_dotenv()
 
-SECRET_KEY = None
+SECRET_KEY = os.getenv("SECRET_KEY", os.urandom(32).hex())
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 1*60*24* 60  # 60天
-VALID_USERNAME = None
-VALID_PASSWORD = None
-
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "86400"))  # 60天
+VALID_USERNAME = os.getenv("VALID_USERNAME", "admin")
+VALID_PASSWORD = os.getenv("VALID_PASSWORD", "admin")
+PORT = int(os.getenv("PORT", "6688"))
 
 
 description = """
@@ -175,20 +178,4 @@ app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
 
 if __name__ == '__main__':
-    print('''
------------------------------------------------------------
-|         Github: https://github.com/81NewArk             |
-|         Author: 81NewArk                                |
------------------------------------------------------------
-|                    Version:1.0.4                        |
------------------------------------------------------------''')
-
-
-    SECRET_KEY = os.urandom(32).hex()
-    VALID_USERNAME = input("Please enter username: ")
-    VALID_PASSWORD = input("Please enter password: ")
-    port_input = input("Please enter port (default: 6688): ")
-    port = int(port_input) if port_input else 6688
-
-
-    uvicorn.run(app, host="0.0.0.0", port=port, access_log=True)
+    uvicorn.run(app, host="0.0.0.0", port=PORT, access_log=True)
